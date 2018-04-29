@@ -1,0 +1,317 @@
+//----------------------------------------------------------------------
+/*TYPOGRAPHY*/
+
+//SET FONTSIZE:
+/*Sets font-size in px and rem, based on 16
+Why rem and not em? Because of inheritance when nesting ems
+Why declaring font-size twice? IE8 and some cases of IE9/10: See https://stackoverflow.com/questions/36428182/font-size-in-px-and-in-rem-why-add-both-to-the-same-element */
+    @mixin fontSizePX($size:16){
+        font-size:   $size + px;
+        font-size:   ($size / 16) + rem;
+    }
+
+/*IPAD IPHONE PHONE LINKS:
+/*Control blue links on iPad and iPhone phone numbers: https://litmus.com/blog/update-banning-blue-links-on-ios-devices */
+    a[href^=tel]{
+       color:#F00;
+       text-decoration:none;
+	}
+	
+/*HYPHERNATION*/
+	@mixin hyphernate{
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		-webkit-hyphens: auto;
+		-ms-hyphens: auto;
+		-moz-hyphens: auto;
+		hyphens: auto;
+		/*The Hyphenate-Before or -after sets a minimum number of characters before or 
+		after the hyphenation. And hyphenate-lines how many lines can be hyphenated in a row.
+		As you may have guessed, these are Webkit only.*/
+		-webkit-hyphenate-before: 2;
+		-webkit-hyphenate-after: 3;
+		hyphenate-lines: 3;
+	}
+
+	////http://codepen.io/chriscoyier/blog/some-mini-sass-mixins-i-like
+	@mixin ellipsis{
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		-o-text-overflow: ellipsis;
+	}
+
+/*NATIVE FONT STACKS*/
+    //https://www.smashingmagazine.com/2015/11/using-system-ui-fonts-practical-guide/
+    /*For the most basic system fallbacks*/
+    @mixin fontFamily{
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    }
+
+	//Utilizing system font families:
+	//http://stackoverflow.com/questions/19691530/valid-values-for-androidfontfamily-and-what-they-map-to
+	//http://iosfonts.com/
+	//http://pieroxy.net/blog/2014/10/11/the_quest_for_a_condensed_web_font.html
+	@mixin fontFamily-light() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-Light", /*ios*/ "HelveticaNeue", /*android system*/ sans-serif-light, /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:300;
+	}
+
+	@mixin fontFamily-light-italic() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-LightItalic", /*ios*/ "HelveticaNeue", /*android system*/ sans-serif-light, /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:300;
+		font-style:italic;
+	}
+
+	@mixin fontFamily-regular() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue", /*android*/ "Roboto", /*fallbacks*/ Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight: 400;		
+	}
+
+	@mixin fontFamily-regular-italic() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-Italic",  /*ios*/ "HelveticaNeue", /*android*/ "Roboto", /*fallbacks*/ Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight: 400;
+		font-style: italic;
+	}
+
+	@mixin fontFamily-medium() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-Medium",  /*ios*/ "HelveticaNeue", /*android system*/ sans-serif-medium, /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:500;
+	}
+
+	@mixin fontFamily-medium-italic() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-MediumItalic", /*ios*/ "HelveticaNeue", /*android system*/ sans-serif-medium, /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:500;
+		font-style:italic;
+	}
+
+	@mixin fontFamily-bold() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-Bold", /*ios*/ "HelveticaNeue", /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:700;
+	}
+
+	@mixin fontFamily-bold-italic() {
+		font-family:system-ui, -apple-system, BlinkMacSystemFont, /*ios*/ "HelveticaNeue-BoldItalic",  /*ios*/ "HelveticaNeue", /*android*/ "Roboto", /*fallbacks*/Arial, Verdana, "Trebuchet MS", sans-serif;
+		font-weight:700;
+		font-style:italic;
+	}
+
+//RESPONSIVE MODULAR SCALE TYPOGRAPHY
+	//Mike Riethmuller: https://codepen.io/MadeByMike/pen/7744b5fc445e2b34a9e2bb1e21e8b09c
+	//https://codepen.io/fridanyvall/pen/zwJeeK
+
+	// Change scale
+	$mod_1: 1.125; //1.067;
+	$mod_2: 1.414; //1.333;
+
+	// Fluid Type Mixin, helper
+	@function strip-unit($value) {
+		@return $value / ($value * 0 + 1);
+	}
+
+	@mixin fluid-type($min-vw, $max-vw, $min-font-size, $max-font-size) {
+		$u1: unit($min-vw);
+		$u2: unit($max-vw);
+		$u3: unit($min-font-size);
+		$u4: unit($max-font-size);
+
+		//to be able to use ems in mediaqueries instead of rem, decides when to switch between modular scales
+		$fny-min-vw: #{strip-unit($min-vw)}em;
+		$fny-max-vw: #{strip-unit($max-vw)}em;
+
+
+		@if $u1 == $u2 and $u1 == $u3 and $u1 == $u4 {
+			& {
+				//Adding px fallback that is the same as $min-font-size
+				font-size: #{strip-unit($min-font-size*16)}px;
+				font-size: $min-font-size;
+
+				@media screen and (min-width: $fny-min-vw) {
+					//Adding px fallback that is the average of min and max font sizes
+					font-size: #{strip-unit(($min-font-size + $max-font-size)*8)}px;
+					font-size: calc(#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)}));
+
+					margin: calc((#{$min-font-size} + #{strip-unit($max-font-size - $min-font-size)} * ((100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)})) / #{strip-unit($min-font-size)}) 0;
+
+				}
+
+				@media screen and (min-width: $fny-max-vw) {
+					//Adding px fallback that is the same as $max-font-size
+					font-size: #{strip-unit($max-font-size*16)}px;
+					font-size: $max-font-size;
+					margin:calc(((#{strip-unit($min-font-size)} + #{strip-unit($max-font-size - $min-font-size)}) / #{strip-unit($min-font-size)}) / #{strip-unit($max-font-size)} * 1em) 0;
+				}
+			}
+		} @else {
+			@error "Detected mixed units. Please use the same units for all parameters. " + $u1 +", " + $u2 + ", " + $u3 +", "+ $u4;
+		}
+	}
+
+	// Calculate Modular Scale
+	$h1-min: $mod_1*$mod_1*$mod_1*$mod_1*$mod_1 * 1rem;
+	$h1-max: $mod_2*$mod_2*$mod_2*$mod_2*$mod_2 * 1rem;
+
+	$h2-min: $mod_1*$mod_1*$mod_1*$mod_1 * 1rem;
+	$h2-max: $mod_2*$mod_2*$mod_2*$mod_2 * 1rem;
+
+	$h3-min: $mod_1*$mod_1*$mod_1 * 1rem;
+	$h3-max: $mod_2*$mod_2*$mod_2 * 1rem;
+
+	$h4-min: $mod_1*$mod_1 * 1rem;
+	$h4-max: $mod_2*$mod_2 * 1rem;
+
+	$h5-min: $mod_1* 1rem;
+	$h5-max: $mod_2 * 1rem;
+
+	$h6-min: 1rem;
+	$h6-max: 1rem;
+
+	//I don't like the idea of the h6 shrinking, and use the calc 1rem for this instead.
+	//$h6-min: (1rem / $mod_1);
+	//$h6-max: (1rem / $mod_2);
+
+	//adding p
+	$p-min: 1rem;
+	$p-max: 1.25rem; //1rem
+
+	//Numbers for line-height:
+	$h1-margin-min:0.75; //12
+	$h1-margin-max: 1.875; //30;
+
+	$h2-margin-min:0.65625; //10.5
+	$h2-margin-max:1.875; //30
+
+	$h3-margin-min:0.75; //12
+	$h3-margin-max:1.875; // 30
+
+	$h4-margin-min:0.5625;//9
+	$h4-margin-max:0.9375;// 15
+
+	$h5-margin-min:0.375;//6
+	$h5-margin-max:0.9375;// 15
+
+
+
+//----------------------------------------------------------------------
+/*FORM ELEMENTS*/
+
+/*Turn off spinner arrows
+from http://css-tricks.com/snippets/css/turn-off-number-input-spinners/ */
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+    }
+
+    input[type=number]{
+        -moz-appearance:textfield;
+    }
+
+/*Remove ios box-shadows
+http://stackoverflow.com/questions/23211656/remove-ios-input-shadow
+Note: be careful when adding this property on input type checkbox and radio button selectors, because it hides the checkboxes and radio buttons ;)
+http://stackoverflow.com/questions/3062968/remove-textarea-inner-shadow-on-mobile-safari-iphone
+*/
+    @mixin iosFormShadow{
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+
+//----------------------------------------------------------------------
+/*MEDIA QUERYS*/
+
+/*RETINA IMAGES*/
+//Keep an eye on support for https://caniuse.com/#feat=css-image-set, which in the future will make retina media queries not necessary
+    @mixin retina13($image, $width, $height) {
+        @media (min--moz-device-pixel-ratio: 1.3),
+        (-o-min-device-pixel-ratio: 2.6/2),
+        (-webkit-min-device-pixel-ratio: 1.3),
+        (min-device-pixel-ratio: 1.3),
+        (min-resolution: 1.3dppx) {
+                /* on retina, use image that's scaled by 2 */
+                background-image: url($image);
+                background-size: $width $height;
+        }
+    }
+
+    @mixin retina125($image, $width, $height){
+        @media (-webkit-min-device-pixel-ratio: 1.25),
+        ( min--moz-device-pixel-ratio: 1.25),
+        ( -o-min-device-pixel-ratio: 1.25/1),
+        ( min-device-pixel-ratio: 1.25),
+        ( min-resolution: 200dpi),
+        ( min-resolution: 1.25dppx) {
+            /* on retina, use image that's scaled by 2 */
+            background-image: url($image);
+            background-size: $width $height;
+        }
+    }
+
+
+/*BREAKPOINTS*/
+    $break-mobile-small:20em; /*320px*/
+    $break-mobile-small-break:20.0625em; /*321px*/
+    $break-mobile-medium:30em; /*480*/
+    $break-mobile:40em; /*640px*/
+    $break-tablet:48em; /*768px*/
+    $break-computer-small:60em; /*960px*/
+    $break-computer-small-tablet:60em; /*960px*/
+    $break-computer:64em; /*1024px*/    
+    $break-computer-medium:71.25em; /*1140px*/
+    $break-computer-large:76.5em; /*1224px*/
+    $break-computer-desktop:105em; //1680px
+    $break-computer-xl:114em; /*1824px*/
+
+    @mixin breakpoint($media) {
+        @if $media == mobile-portrait { /*320*/
+            @media only screen and (min-width: $break-mobile-small) { @content; }
+        }
+        @else if $media == mobile-landscape {/*480*/
+            @media only screen and (min-width: $break-mobile-medium) { @content; }
+        }
+        @else if $media == mobile-large {/*640*/
+            @media only screen and (min-width: $break-mobile) { @content; }
+        }
+    
+        @else if $media == tablet { /*768*/
+            @media only screen and (min-width: $break-tablet) { @content; }
+        }
+    
+        @else if $media == tablet-landscape { /*1024*/
+            @media only screen and (min-width: $break-computer) { @content; }
+        }
+    
+        @else if $media == computer-small { /*960*/
+            @media only screen and (min-width: $break-computer-small) { @content; }
+        }
+    
+        @else if $media == computer-small-tablet { /*960 and ipad landscape*/
+            @media only screen and (min-width: $break-computer-small-tablet), (min-device-width : 48em) and (max-device-width : 64em) and (orientation : landscape) { @content; }
+        }
+    
+        @else if $media == tablet-portrait { /*ipad portrait*/
+            @media only screen and (min-device-width : 48em) and (max-device-width : 64em) and (orientation:portrait) { @content; }
+        }
+    
+        @else if $media == tablet-landscape { /*ipad landscape*/
+            @media only screen and (min-device-width : 48em) and (max-device-width : 64em) and (orientation:landscape) { @content; }
+        }
+    
+        @else if $media == computer-medium { /*1140*/
+            @media only screen and (min-width: $break-computer-medium) { @content; }
+        }
+    
+        @else if $media == computer { /*1224*/
+            @media only screen and (min-width: $break-computer-large) { @content; }
+        }
+    
+        @else if $media == computer-desktop { /*1680*/
+            @media only screen and (min-width: $break-computer-desktop) { @content; }
+        }
+    
+        @else if $media == computer-large { /*1824*/
+            @media only screen and (min-width: $break-computer-xl) { @content; }
+        }
+  }
